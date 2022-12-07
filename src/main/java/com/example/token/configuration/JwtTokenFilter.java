@@ -1,6 +1,7 @@
 package com.example.token.configuration;
 
 import com.example.token.service.UserService;
+import com.example.token.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Required;
@@ -42,15 +43,18 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
 
         // expired되었는지 여부
-        if (JwtTokenUtil.isExpired(token, secretKey)) {
+        if (JwtUtil.isExpired(token, secretKey)) {
             log.error("Token이 만료되었습니다.");
             filterChain.doFilter(request, response);
             return;
         }
 
+        // controller에서 userName 꺼내기
+        String userName = JwtUtil.getUserName(token, secretKey);
+
         // 권한 부여
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken("", null, List.of(new SimpleGrantedAuthority("USER")));
+                new UsernamePasswordAuthenticationToken(userName, null, List.of(new SimpleGrantedAuthority("USER")));
 
         // Detail을 넣어준다.
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

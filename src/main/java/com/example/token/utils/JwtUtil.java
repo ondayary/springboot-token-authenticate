@@ -11,6 +11,12 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtUtil {
 
+    public static String getUserName(String token, String secretKey) {
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
+                .getBody()
+                .get("userName", String.class);
+    }
+
     public static boolean isExpired(String token, String secretKey) {
         // expired가 지금보다 전에 됐으면 true
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
